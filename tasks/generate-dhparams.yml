@@ -1,0 +1,3 @@
+---
+ - name: Generate RSA key
+   command: openssl dhparam -out {{ssl_certs_dhparams_path}} {{ssl_certs_key_size}} creates={{ssl_certs_dhparams_path}}

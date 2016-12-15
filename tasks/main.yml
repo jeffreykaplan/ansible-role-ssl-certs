@@ -20,6 +20,12 @@
    sudo: false
    tags: [ssl-certs,configuration]
 
+ - stat: path={{ssl_certs_local_dhparams_path}}
+   register: stat_dhparams
+   connection: local
+   sudo: false
+   tags: [ssl-certs,configuration]
+
  - name: Test if privkey file is needed
    fail: msg="Privkey file {{ssl_certs_local_privkey_path}} is missing"
    when: not stat_privkey.stat.exists and stat_cert.stat.exists
@@ -30,8 +36,17 @@
    when: stat_privkey.stat.exists and not stat_cert.stat.exists
    tags: [ssl-certs,configuration]
 
+# - name: Test if dh file is needed
+#   fail: msg="Cert file {{ssl_certs_local_dhparams_path}} is missing"
+#   when: not stat_dhparams.stat.exists
+#   tags: [ssl-certs,configuration]
+
  - include: generate.yml
    when: not stat_privkey.stat.exists and not stat_cert.stat.exists
+   tags: [ssl-certs,configuration]
+
+ - include: generate-dhparams.yml
+   when: not stat_dhparams.stat.exists
    tags: [ssl-certs,configuration]
 
  - name: Copy SSL certificates
@@ -40,4 +55,11 @@
    with_items:
        - { src: "{{ssl_certs_local_cert_path}}", dest: "{{ssl_certs_cert_path}}" }
        - { src: "{{ssl_certs_local_privkey_path}}", dest: "{{ssl_certs_privkey_path}}" }
+   tags: [ssl-certs,configuration]
+
+ - name: Copy dhparams file
+   copy: src={{item.src}} dest={{item.dest}} owner="{{ssl_certs_path_owner}}" group="{{ssl_certs_path_group}}" mode=700
+   when: stat_dhparams.stat.exists
+   with_items:
+       - { src: "{{ssl_certs_local_dhparams_path}}", dest: "{{ssl_certs_dhparams_path}}" }
    tags: [ssl-certs,configuration]

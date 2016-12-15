@@ -19,3 +19,5 @@ ssl_certs_local_cert_path: '{{inventory_dir|default(playbook_dir)}}/files/ssl/{{
 
 ssl_certs_generate_self_signed: true
 ssl_certs_key_size: "2048"
+
+ssl_certs_dhparams_path: "{{ssl_certs_patch}}/dhparams.pem"
